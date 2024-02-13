@@ -42,9 +42,31 @@ class DeleteCommand {
   }
 }
 
+class HSetCommand {
+  constructor(database) {
+    this.database = database;
+  }
+
+  execute(hash, key, value) {
+    this.database[hash] = { [key]: value }
+  }
+}
+
+class HGetCommand {
+  constructor(database) {
+    this.database = database;
+  }
+
+  execute(hash, key) {
+    return this.database[hash]?.[key];
+  }
+}
+
 module.exports = {
   SetCommand,
   GetCommand,
   AppendCommand,
-  DeleteCommand
+  DeleteCommand,
+  HSetCommand,
+  HGetCommand
 }

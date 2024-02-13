@@ -1,8 +1,8 @@
-// src/App.js
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 function App() {
   const [command, setCommand] = useState('SET');
+  const [hash, setHash] = useState('');
   const [key, setKey] = useState('');
   const [value, setValue] = useState('');
   const [response, setResponse] = useState('');
@@ -68,16 +68,48 @@ function App() {
     }
   };
 
+  const hSetValueHandler = async () => {
+    try {
+      await fetch('http://localhost:3000/hset', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ hash, key, value }),
+      });
+      setResponse('OK');
+    } catch (error) {
+      console.error('Error setting value on hash:', error);
+      setResponse('Error setting value on hash.');
+    }
+  };
+
+  const hGetValueHandler = async () => {
+    try {
+      const response = await fetch(`http://localhost:3000/hget/${hash}/${key}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.text();
+      setResponse(`Value: ${data}`);
+    } catch (error) {
+      console.error('Error getting hash value:', error);
+      setResponse('Error getting hash value.');
+    }
+  };
+
   const onSubmit = () => {
     setResponse("")
     if (command === "GET") return getValueHandler()
     if (command === "APPEND") return appendValueHandler()
     if (command === "DELETE") return deleteValueHandler()
+    if (command === "HSET") return hSetValueHandler()
+    if (command === "HGET") return hGetValueHandler()
     return setValueHandler()
   }
 
-  const shouldShowValueButton = ["SET", "APPEND"].includes(command)
-
+  const shouldShowValueField = ["SET", "APPEND", "HSET"].includes(command)
+  const shouldShowHashField = ["HSET", "HGET"].includes(command)
 
   useEffect(() => {
     setResponse("")
@@ -92,7 +124,19 @@ function App() {
           <option value="SET">SET</option>
           <option value="APPEND">APPEND</option>
           <option value="DELETE">DELETE</option>
+          <option value="HGET">HGET</option>
+          <option value="HSET">HSET</option>
         </select>
+        {
+          shouldShowHashField && (
+            <input
+              type="text"
+              placeholder="Hash"
+              value={hash}
+              onChange={(e) => setHash(e.target.value)}
+            />
+          )
+        }
         <input
           type="text"
           placeholder="Key"
@@ -100,7 +144,7 @@ function App() {
           onChange={(e) => setKey(e.target.value)}
         />
         {
-          shouldShowValueButton && (
+          shouldShowValueField && (
             <input
               type="text"
               placeholder="Value"

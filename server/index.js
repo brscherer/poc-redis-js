@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const { SetCommand, GetCommand, AppendCommand, DeleteCommand } = require('./commands');
+const { SetCommand, GetCommand, AppendCommand, DeleteCommand, HGetCommand, HSetCommand } = require('./commands');
 
 const app = express();
 app.use(bodyParser.json());
@@ -41,6 +41,24 @@ app.delete('/delete/:key', (req, res) => {
   const value = deleteCommand.execute(key);
   if (value) {
     res.send("Key deleted successfully");
+  } else {
+    res.status(404).send('Key not found');
+  }
+});
+
+app.post('/hset', (req, res) => {
+  const { hash, key, value } = req.body;
+  const hSetCommand = new HSetCommand(database);
+  hSetCommand.execute(hash, key, value);
+  res.send('OK');
+});
+
+app.get('/hget/:hash/:key', (req, res) => {
+  const { hash, key } = req.params;
+  const hGetCommand = new HGetCommand(database);
+  const value = hGetCommand.execute(hash, key);
+  if (value !== undefined) {
+    res.send(value);
   } else {
     res.status(404).send('Key not found');
   }
