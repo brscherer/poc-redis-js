@@ -37,11 +37,47 @@ function App() {
     }
   };
 
+  const appendValueHandler = async () => {
+    try {
+      await fetch(`http://localhost:3000/append/${key}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ key, value }),
+      });
+      setResponse('OK');
+    } catch (error) {
+      console.error('Error appending value:', error);
+      setResponse('Error appending value.');
+    }
+  };
+
+  const deleteValueHandler = async () => {
+    try {
+      await fetch(`http://localhost:3000/delete/${key}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      setResponse('OK');
+    } catch (error) {
+      console.error('Error deleting value:', error);
+      setResponse('Error deleting value.');
+    }
+  };
+
   const onSubmit = () => {
     setResponse("")
     if (command === "GET") return getValueHandler()
+    if (command === "APPEND") return appendValueHandler()
+    if (command === "DELETE") return deleteValueHandler()
     return setValueHandler()
   }
+
+  const shouldShowValueButton = ["SET", "APPEND"].includes(command)
+
 
   useEffect(() => {
     setResponse("")
@@ -54,6 +90,8 @@ function App() {
         <select value={command} onChange={(e) => setCommand(e.target.value)}>
           <option value="GET">GET</option>
           <option value="SET">SET</option>
+          <option value="APPEND">APPEND</option>
+          <option value="DELETE">DELETE</option>
         </select>
         <input
           type="text"
@@ -62,7 +100,7 @@ function App() {
           onChange={(e) => setKey(e.target.value)}
         />
         {
-          command === "SET" && (
+          shouldShowValueButton && (
             <input
               type="text"
               placeholder="Value"

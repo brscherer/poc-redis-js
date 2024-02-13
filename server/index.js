@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const { SetCommand, GetCommand } = require('./commands');
+const { SetCommand, GetCommand, AppendCommand, DeleteCommand } = require('./commands');
 
 const app = express();
 app.use(bodyParser.json());
@@ -17,11 +17,30 @@ app.post('/set', (req, res) => {
 });
 
 app.get('/get/:key', (req, res) => {
-  const key = req.params.key;
+  const { key } = req.params;
   const getCommand = new GetCommand(database);
   const value = getCommand.execute(key);
   if (value !== undefined) {
     res.send(value);
+  } else {
+    res.status(404).send('Key not found');
+  }
+});
+
+app.post('/append/:key', (req, res) => {
+  const { key } = req.params;
+  const { value } = req.body;
+  const appendCommand = new AppendCommand(database);
+  appendCommand.execute(key, value);
+  res.send('OK');
+});
+
+app.delete('/delete/:key', (req, res) => {
+  const { key } = req.params;
+  const deleteCommand = new DeleteCommand(database);
+  const value = deleteCommand.execute(key);
+  if (value) {
+    res.send("Key deleted successfully");
   } else {
     res.status(404).send('Key not found');
   }
