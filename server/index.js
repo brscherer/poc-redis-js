@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const { SetCommand, GetCommand, AppendCommand, DeleteCommand, HGetCommand, HSetCommand } = require('./commands');
+const { SetCommand, GetCommand, AppendCommand, DeleteCommand, HGetCommand, HSetCommand, HKeysCommand, HValsCommand } = require('./commands');
 
 const app = express();
 app.use(bodyParser.json());
@@ -60,7 +60,29 @@ app.get('/hget/:hash/:key', (req, res) => {
   if (value !== undefined) {
     res.send(value);
   } else {
-    res.status(404).send('Key not found');
+    res.status(404).send('Hash or Key not found');
+  }
+});
+
+app.get('/hkeys/:hash', (req, res) => {
+  const { hash } = req.params;
+  const hKeysCommand = new HKeysCommand(database);
+  const value = hKeysCommand.execute(hash);
+  if (value !== undefined) {
+    res.send(value);
+  } else {
+    res.status(404).send('Hash or Key not found');
+  }
+});
+
+app.get('/hvals/:hash', (req, res) => {
+  const { hash } = req.params;
+  const hValsCommand = new HValsCommand(database);
+  const value = hValsCommand.execute(hash);
+  if (value !== undefined) {
+    res.send(value);
+  } else {
+    res.status(404).send('Hash or Key not found');
   }
 });
 

@@ -62,11 +62,33 @@ class HGetCommand {
   }
 }
 
+class HKeysCommand {
+  constructor(database) {
+    this.database = database;
+  }
+
+  execute(hash) {
+    return Object.keys(this.database[hash])
+  }
+}
+
+class HValsCommand {
+  constructor(database) {
+    this.database = database;
+  }
+
+  execute(hash) {
+    return Object.values(this.database[hash])
+  }
+}
+
 module.exports = {
   SetCommand,
   GetCommand,
   AppendCommand,
   DeleteCommand,
   HSetCommand,
-  HGetCommand
+  HGetCommand,
+  HKeysCommand,
+  HValsCommand
 }

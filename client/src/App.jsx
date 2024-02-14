@@ -98,6 +98,34 @@ function App() {
     }
   };
 
+  const hKeysValueHandler = async () => {
+    try {
+      const response = await fetch(`http://localhost:3000/hkeys/${hash}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.text();
+      setResponse(`Value: ${data}`);
+    } catch (error) {
+      console.error('Error getting value:', error);
+      setResponse('Error getting value.');
+    }
+  };
+
+  const hValsValueHandler = async () => {
+    try {
+      const response = await fetch(`http://localhost:3000/hvals/${hash}`);
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.text();
+      setResponse(`Value: ${data}`);
+    } catch (error) {
+      console.error('Error getting value:', error);
+      setResponse('Error getting value.');
+    }
+  };
+
   const onSubmit = () => {
     setResponse("")
     if (command === "GET") return getValueHandler()
@@ -105,11 +133,14 @@ function App() {
     if (command === "DELETE") return deleteValueHandler()
     if (command === "HSET") return hSetValueHandler()
     if (command === "HGET") return hGetValueHandler()
+    if (command === "HKEYS") return hKeysValueHandler()
+    if (command === "HVALS") return hValsValueHandler()
     return setValueHandler()
   }
 
+  const shouldShowKeyField = !["HKEYS", "HVALS"].includes(command)
   const shouldShowValueField = ["SET", "APPEND", "HSET"].includes(command)
-  const shouldShowHashField = ["HSET", "HGET"].includes(command)
+  const shouldShowHashField = ["HSET", "HGET", "HKEYS", "HVALS"].includes(command)
 
   useEffect(() => {
     setResponse("")
@@ -126,6 +157,8 @@ function App() {
           <option value="DELETE">DELETE</option>
           <option value="HGET">HGET</option>
           <option value="HSET">HSET</option>
+          <option value="HKEYS">HKEYS</option>
+          <option value="HVALS">HVALS</option>
         </select>
         {
           shouldShowHashField && (
@@ -137,12 +170,16 @@ function App() {
             />
           )
         }
-        <input
-          type="text"
-          placeholder="Key"
-          value={key}
-          onChange={(e) => setKey(e.target.value)}
-        />
+        {
+          shouldShowKeyField && (
+            <input
+              type="text"
+              placeholder="Key"
+              value={key}
+              onChange={(e) => setKey(e.target.value)}
+            />
+          )
+        }
         {
           shouldShowValueField && (
             <input
